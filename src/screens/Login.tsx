@@ -1,12 +1,17 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import Login from './src/screens/Login';
 
-const Login = () => {
+function App(): React.JSX.Element {
+ 
+
   return (
-    <View>
-      <Text>Login</Text>
-    </View>
-  )
+  <Login/>
+  );
 }
 
-export default Login
+const styles = StyleSheet.create({
+  
+});
+
+export default App;
