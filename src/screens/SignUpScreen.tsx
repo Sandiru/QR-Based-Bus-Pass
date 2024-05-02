@@ -40,7 +40,7 @@ const SignUpScreen = () => {
       <View style={styles.container}>
         <Image
           style={{width: '100%', height: '100%', position: 'absolute'}}
-          source={require('../assets/img/app_background.png')}
+          source={require('../assets/app_background.png')}
           resizeMode="cover"
         />
         <TouchableOpacity style={styles.settingsIcon}>
