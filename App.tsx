@@ -1,17 +1,21 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import Login from './src/screens/Login';
+import { View, StyleSheet } from 'react-native';
+import Loginscreen from './screens/Loginscreen';
+import SignUpScreen from './screens/SignUpScreen';
 
-function App(): React.JSX.Element {
- 
-
+const App = () => {
   return (
-  <Login/>
+    <View style={styles.container}>
+      <SignUpScreen />
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  
+  container: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+  },
 });
 
 export default App;
