@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Button,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -120,28 +122,44 @@ const TransactionHistory = (a: any) => {
     interface Transaction {
       id: number;
       amount: number;
-      date: string;
+      startdate: string;
+      enddate: string;
       startLoc: string;
       endLoc: String;
     }
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
       const addTransaction = (
         index: number,
         amount: number,
-        date: string,
-        time: string,
+        startdate: string,
+        enddate: string,
+        starttime: string,
+        endtime: string,
         start: string,
         end: string,
       ) => {
+        const startTimeAMPM = new Date(
+          `2000-01-01T${starttime}`,
+        ).toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true,
+        });
+        const endTimeAMPM = new Date(`2000-01-01T${endtime}`).toLocaleString(
+          'en-US',
+          {hour: 'numeric', minute: 'numeric', hour12: true},
+        );
         setTransactions(prevTransactions => [
           {
             id: index,
             amount: amount,
-            date: date + ', ' + time,
-            startLoc: start,
-            endLoc: end,
+            startdate: startdate + ', ' + startTimeAMPM,
+            enddate: endTimeAMPM,
+            startLoc: start.split('_')[1],
+            endLoc: end.split('_')[1],
           },
           ...prevTransactions,
         ]);
@@ -149,34 +167,57 @@ const TransactionHistory = (a: any) => {
 
       const fecthData = async () => {
         try {
-          const tripDocs = await getDocs(
-            collection(db3, 'Users', userId, 'Trips'),
-          );
-          tripDocs.forEach(doc => {
-            const tripData = doc.data();
-            const {charge, dropDown, pickUp} = tripData;
-            if (dropDown && pickUp) {
-              addTransaction(
-                parseInt(doc.id.split('-')[1]),
-                charge,
-                dropDown.date,
-                dropDown.time,
-                pickUp.location,
-                dropDown.location,
-              );
-            } else {
-              console.log('Trip document data insuffient');
-            }
-          });
+          setIsLoading(true);
+          if (userId) {
+            const tripDocs = await getDocs(
+              collection(db3, 'Users', userId, 'Trips'),
+            );
+            tripDocs.forEach(doc => {
+              const tripData = doc.data();
+              const {charge, dropDown, pickUp} = tripData;
+              if (dropDown && pickUp) {
+                addTransaction(
+                  parseInt(doc.id.split('-')[1]),
+                  charge,
+                  pickUp.date,
+                  dropDown.date,
+                  pickUp.time,
+                  dropDown.time,
+                  pickUp.location,
+                  dropDown.location,
+                );
+              } else {
+                console.log('Trip document data insuffient');
+              }
+            });
+          } else {
+            Alert.alert('Error', 'Your not a Registered user!');
+          }
         } catch (error) {
           console.error('Error fetching transactions:', error);
         }
+        setIsLoading(false);
       };
       fecthData();
     }, []);
 
     return (
-      <View style={{height: 350}}>
+      <View style={{height: 450}}>
+        <Modal
+          visible={isLoading}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => {}}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }}>
+            <ActivityIndicator size={80} color="#0000ff" />
+          </View>
+        </Modal>
         <SafeAreaView>
           <ScrollView>
             {transactions.map(transaction => (
@@ -203,9 +244,15 @@ const TransactionHistory = (a: any) => {
                 <View
                   style={{flex: 9, marginLeft: 10, justifyContent: 'center'}}>
                   <Text style={{color: 'black'}}>
-                    {transaction.startLoc} to {transaction.endLoc}
+                    {transaction.startLoc}{' '}
+                    <Text style={{color: 'black', fontWeight: '600'}}>To</Text>{' '}
+                    {transaction.endLoc}
                   </Text>
-                  <Text style={{color: 'black'}}>{transaction.date}</Text>
+                  <Text style={{color: 'black'}}>
+                    {transaction.startdate}{' '}
+                    <Text style={{color: 'black', fontWeight: '600'}}>-</Text>{' '}
+                    {transaction.enddate}
+                  </Text>
                 </View>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                   <Text style={{color: 'black'}}>
@@ -214,6 +261,7 @@ const TransactionHistory = (a: any) => {
                 </View>
               </View>
             ))}
+            <View style={{marginBottom: 150}}></View>
           </ScrollView>
         </SafeAreaView>
       </View>
@@ -240,7 +288,7 @@ const TransactionHistory = (a: any) => {
   );
 };
 
-export const style = StyleSheet.create({
+const style = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     flex: 1,
