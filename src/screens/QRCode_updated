@@ -70,11 +70,7 @@ const QRCodeDownload = (a: any) => {
       </TouchableOpacity>
       <Text style={styles.title}></Text>
       <View
-        style={{
-          borderBottomColor: '#bbc4c9',
-          borderBottomWidth: 1,
-          width: '100%',
-        }}
+        style={styles.innerContainer}
       />
       <SafeAreaView>
         <ScrollView>
@@ -108,6 +104,11 @@ const QRCodeDownload = (a: any) => {
 };
 
 const styles = StyleSheet.create({
+innerContainer:{
+          borderBottomColor: '#bbc4c9',
+          borderBottomWidth: 1,
+          width: '100%',
+        }
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
